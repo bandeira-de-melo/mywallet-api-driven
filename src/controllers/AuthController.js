@@ -24,6 +24,7 @@ export const signUpUser = async (req, res)=>{
     }
 }
 
+
 export const loginUser = async (req, res)=>{
     const {email, password} = req.body
 
@@ -32,6 +33,7 @@ export const loginUser = async (req, res)=>{
     const appUser = await db.collection("users").findOne({ email })
     if(!appUser) return res.status(401).send("email or password are incorrect.")
     console.log(appUser)
+
     const isPassword = bcrypt.compareSync(password, appUser.password)
     if(!isPassword) return res.status(401).send("email or password are incorrect.")
 
