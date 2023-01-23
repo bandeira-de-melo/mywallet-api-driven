@@ -1,8 +1,8 @@
 import joi from "joi"
 
-export const accessSchema = joi.object(
-    {
-        name:joi.string().min(1).required(),
-        authorization:joi.string().min(1).required()
-    }
-)
+export const entryTrasactionSchema = joi.object({
+    "amount": joi.number().min(0.01).required(),
+    "description": joi.string().min(2).required(),
+    "type": joi.string().valid("entry","withdraw")
+})
+
