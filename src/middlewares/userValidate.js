@@ -1,6 +1,6 @@
 
 
-const validateSchema = (schema)=>{
+const userValidate = (schema)=>{
     return (req, res, next)=>{
      const {error} = schema.validate(req.body, {abortEarly: false})
 
@@ -14,4 +14,4 @@ const validateSchema = (schema)=>{
   
 }
 
-export default validateSchema
+export default userValidate

@@ -1,7 +1,7 @@
 import db from "../config/database.js"
 import bcrypt from "bcrypt"
 import {v4 as uuidv4} from "uuid"
-import { ObjectId } from "mongodb"
+
 
 
 export const signUpUser = async (req, res)=>{
@@ -29,22 +29,28 @@ export const loginUser = async (req, res)=>{
     const {email, password} = req.body
 
     try{
+        const appUser = await db.collection("users").findOne({ email })
+        if(!appUser) return res.status(401).send("email or password is incorrect.")
+        
 
-    const appUser = await db.collection("users").findOne({ email })
-    if(!appUser) return res.status(401).send("email or password are incorrect.")
-    console.log(appUser)
+        const isPassword = bcrypt.compareSync(password, appUser.password)
+        if(!isPassword) return res.status(401).send("email or password is incorrect.")
 
-    const isPassword = bcrypt.compareSync(password, appUser.password)
-    if(!isPassword) return res.status(401).send("email or password are incorrect.")
+        const token = uuidv4()
 
-    const token = uuidv4()
+            try{
+                
+                await db.collection("session").insertOne({userId: appUser._id, token})
+                //returns username and token to be used on frontend for to be able to use the private routes
+                return res.status(201).send({userId: appUser._id, token})
 
-    await db.collection("session").insertOne({_id: ObjectId(appUser._id), token})
+            } catch (err){
+                console.error(err)
+                return res.status(500).send("Server failed creating session.")
+            }
 
-    res.status(200).send("User has logged in succesfully!")
-
-    }catch(err){
-        console.error(err)
-        res.status(500).send("Error: We are having some problems on the server side...")
-    }
+        }catch(err){
+            console.error(err)
+            return res.status(500).send("Error: We are having some problems on the server side...")
+        }
 }
